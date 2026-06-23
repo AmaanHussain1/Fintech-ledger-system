@@ -26,4 +26,12 @@ public class AccountController {
         Account account = accountService.getAccountByUserId(userId);
         return ResponseEntity.ok(account);
     }
+
+    @PutMapping("/{userId}/balance")
+    public ResponseEntity<Account> updateBalance(@PathVariable Long userId,
+                                                 @RequestBody com.fintech.account_service.dto
+                                                         .UpdateBalanceRequest request){
+        Account updateAccount = accountService.updateBalance(userId, request.amount());
+        return ResponseEntity.ok(updateAccount);
+    }
 }

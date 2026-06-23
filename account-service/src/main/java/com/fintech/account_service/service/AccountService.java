@@ -34,4 +34,22 @@ public class AccountService {
         return accountRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Account not found for user ID: " + userId));
     }
+
+    @Transactional
+    public Account updateBalance(Long userId, BigDecimal amount) {
+        // Fetch the account AND lock the database row
+        Account account = accountRepository.findByUserIdForUpdate(userId)
+                .orElseThrow(() -> new RuntimeException("Account not found for user ID: " + userId));
+
+        // Calculate the new balance safely
+        BigDecimal newBalance = account.getBalance().add(amount);
+
+        // No negative balances allowed
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("Insufficient funds for user ID: " + userId);
+        }
+
+        account.setBalance(newBalance);
+        return accountRepository.save(account);
+    }
 }
